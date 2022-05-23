@@ -6,7 +6,7 @@ export class Environment {
 	@IsNumber()
 	@Type(() => Number)
 	@Expose()
-	public API_PORT: number = 3001;
+	public API_PORT: number = 5678;
 
 	@IsString()
 	@Expose()
