@@ -73,9 +73,9 @@ export class UserJWTPayload extends JWTPayload {
 	public userId!: string;
 
 
-	@IsIn([TOKEN_TYPE.NOVA_BAM])
+	@IsIn([TOKEN_TYPE.MINI_PROJECT])
 	@Expose()
-	public readonly type: TOKEN_TYPE = TOKEN_TYPE.NOVA_BAM;
+	public readonly type: TOKEN_TYPE = TOKEN_TYPE.MINI_PROJECT;
 
 	public _sessionBoundId(): string | undefined {
 		return this.userId;
@@ -86,7 +86,7 @@ export class UserJWTPayload extends JWTPayload {
 
 export class TokenTypeMap implements TokenMap<JWTPayload> {
 	public [TOKEN_TYPE.BASE] = JWTPayload as Constructor<JWTPayload>;
-	public [TOKEN_TYPE.NOVA_BAM] = UserJWTPayload;
+	public [TOKEN_TYPE.MINI_PROJECT] = UserJWTPayload;
 }
 
 export const TOKEN_TYPE_MAP = new TokenTypeMap();

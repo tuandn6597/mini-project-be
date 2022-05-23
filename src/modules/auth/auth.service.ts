@@ -6,14 +6,13 @@ import { JWTPayload, TOKEN_TYPE_MAP, UserJWTPayload } from "./auth.interface";
 import { JwtService } from "@nestjs/jwt";
 import { validateOrReject } from "class-validator";
 import { UserService } from "../user/user.service";
-import { RoleService } from "../role/role.service";
-import { RegisterBodyDto, RegisterResponseDto } from "src/shared/dtos/auth/register.dto";
 import { UserExistedException } from "src/core/http-exception-filter/user-exist-exception";
-import { User } from "src/database/schemas/user.schema";
-import { LoginBodyDto, LoginResponseDto } from "src/shared/dtos/auth/login.dto";
+import { LoginBodyDto, LoginResponseDto } from "src/modules/auth/dtos/login.dto";
 import { ResourceNotFoundException } from "src/core/http-exception-filter/resource-not-found-exception";
 import { CryptoService } from "src/core/crypto/crypto.service";
-import { Profile } from "src/shared/types/profile.type";
+import { RegisterBodyDto, RegisterResponseDto } from "./dtos/register.dto";
+import { User } from "../user/user.schema";
+import { makeId } from "src/shared/utils/make-id";
 
 @Injectable()
 export class AuthService {
@@ -22,7 +21,6 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly envService: EnvironmentService,
     private readonly userService: UserService,
-    private readonly roleService: RoleService,
     private readonly cryptoService: CryptoService,
   ) {
   }
@@ -53,37 +51,33 @@ export class AuthService {
     return parsedPayload;
   }
 
-  public async validate(payload: JWTPayload): Promise<Profile> {
+  public async validate(payload: JWTPayload) {
     const user = await this.userService.findById(payload.userId);
     if (!user) {
       throw new ForbiddenException();
     }
-    const roles = await this.roleService.findByUserId(user._id);
-    return {
-      user,
-      roles,
-    };
+    return user.id;
   }
 
   async register(dto: RegisterBodyDto): Promise<RegisterResponseDto> {
-    const condition = {
-      email: dto.email,
-    }
-    const userExisted = await this.userService.findOne(condition);
+    const userExisted = await this.userService.findByEmail(dto.email);
     if (userExisted) {
       throw new UserExistedException();
     }
-    const userEntity = await this.userService.create(plainToClass(User, dto));
+    const password = await this.cryptoService.generateBcryptHash(dto.password);
+    const id = makeId();
+    const user = new User();
+    const userEntity = await this.userService.create({ ...user, ...dto, password, id });
+    console.log({ ...user, ...dto, password, id });
     return {
-      userId: userEntity._id,
+      id: userEntity.id,
+      email: userEntity.email,
+      username: userEntity.username,
     }
   }
 
   async login(dto: LoginBodyDto): Promise<LoginResponseDto> {
-    const condition = {
-      email: dto.email,
-    }
-    const userExisted = await this.userService.findOne(condition);
+    const userExisted = await this.userService.findByEmail(dto.email);
     if (!userExisted) {
       throw new ResourceNotFoundException();
     }
@@ -92,9 +86,9 @@ export class AuthService {
       throw new ForbiddenException();
     }
     const jwtPayload = new UserJWTPayload();
-    jwtPayload.userId = String(userExisted._id);
+    jwtPayload.userId = String(userExisted.id);
     const token = await this.signJWTToken(jwtPayload);
-    /** TODO: implement refresh token */
+    /** TODO: ko yêu cầu implement refresh token */
     return {
       token,
       refreshToken: token,

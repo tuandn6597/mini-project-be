@@ -6,7 +6,7 @@ export class Environment {
 	@IsNumber()
 	@Type(() => Number)
 	@Expose()
-	public API_PORT: number = 3000;
+	public API_PORT: number = 3001;
 
 	@IsString()
 	@Expose()
@@ -16,14 +16,6 @@ export class Environment {
 	@Expose()
 	public APP_BASE_URL: string = "/";
 
-	@IsString()
-	@Expose()
-	public FIREBASE_URL: string = '';
-
-	@IsString()
-	@Expose()
-	public FIREBASE_SERVER_KEY: string = '';
-
 	@IsNumber()
 	@Expose()
 	@Type(() => Number)
@@ -31,11 +23,8 @@ export class Environment {
 
 	@IsString()
 	@Expose()
-	public JWT_ISSUER: string = "NOVA-BAM";
+	public JWT_ISSUER: string = "MINI-PROJECT";
 
-	@IsString()
-	@Expose()
-	public MONGO_URI: string = 'mongodb://novaAdmin:123456789@10.16.21.1:27017/nova-bam-dev?authSource=admin'
 }
 
 @Injectable()

@@ -6,7 +6,6 @@ import { PassportModule } from "@nestjs/passport";
 import { EnvironmentModule } from "src/core/environment/environment.module";
 import { EnvironmentService } from "src/core/environment/environment.service";
 import { UserModule } from "../user/user.module";
-import { RoleModule } from "../role/role.module";
 import { AuthController } from "./auth.controller";
 import { CryptoModule } from "src/core/crypto/crypto.module";
 
@@ -25,7 +24,6 @@ import { CryptoModule } from "src/core/crypto/crypto.module";
     }),
     EnvironmentModule,
     UserModule,
-    RoleModule,
     CryptoModule,
   ],
   providers: [

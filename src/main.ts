@@ -17,6 +17,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter())
   app.setGlobalPrefix('api/v1');
+  app.enableCors();
 
   const config = new DocumentBuilder()
     .setTitle('Backend Api doc')
